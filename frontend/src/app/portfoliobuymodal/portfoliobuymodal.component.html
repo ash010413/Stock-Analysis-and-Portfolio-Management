@@ -1,0 +1,21 @@
+<div class="modal-header">
+    <div>
+    <h2 class="modal-title">{{ symbol }}</h2>
+    </div>
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <p>Current Price: {{ currentPrice | number: '1.2-2' }}</p>
+    <p>Money in Wallet: {{ balanceWallet | currency }}</p>
+    <div class="quantity-input-container">
+        <label for="quantityInput">Quantity:</label>
+        <input type="number" class="form-control" id="quantityInput" [(ngModel)]="quantity">
+    </div>
+    <p *ngIf="(currentPrice * quantity) > balanceWallet" class="text-danger">Not enough money in wallet!</p>
+    <hr>
+    <br>
+    <p>Total: {{ (quantity > 0) ? (currentPrice * quantity | number: '1.2-2') : '0.00' }}</p>
+    <button class="btn btn-success" style="cursor: pointer;" [disabled]="quantity === 0 || !(currentPrice * quantity <= balanceWallet)" (click)="buy()">Buy</button>
+</div>

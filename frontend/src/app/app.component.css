@@ -1,0 +1,13 @@
+.footer {
+    height: 50px;
+    background-color: #e8e4e4;
+    align-items: center;
+    text-align: center;
+    padding: 15px;
+  }
+
+.cont {
+    width: 100%;
+    min-height: calc(100vh - 50px); /* Adjust the value as per your footer height */
+    overflow-y: auto;
+  }

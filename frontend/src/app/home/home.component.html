@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <title>Document</title> -->
+    <script src="https://kit.fontawesome.com/fdab45c7bb.js" crossorigin="anonymous"></script>
+</head>
+<body>
+      <div class="container mt-5">
+        <h1>STOCK SEARCH</h1>
+        <div class="col-lg-4 col-md-10 col-sm-12 col-12 mx-auto">
+        <form (ngSubmit)="search()">
+          <div class="input-group mb-3" id="search-bar">
+            <input type="text" matInput class="form-control" style="border: none;" name="symbol" [(ngModel)]="symbol" placeholder="Enter stock ticker symbol" aria-label="Enter stock ticker symbol" aria-describedby="basic-addon2" (input)="fetchSuggestions()" [matAutocomplete]="auto">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectSuggestion($event.option.value)">
+            <mat-option *ngIf="symbol && symbol.trim().length > 0 && fetchingSuggestions">
+              <mat-spinner diameter="30"></mat-spinner>
+            </mat-option>
+            <!-- <ng-container *ngIf="suggestions.length > 0"> -->
+              <mat-option *ngFor="let suggestion of suggestions" [value]="suggestion">
+              {{ suggestion.displaySymbol }} | {{ suggestion.description }}
+              </mat-option>
+            <!-- </ng-container> -->
+            </mat-autocomplete>
+            <div class="input-group-append">
+              <button class="btn btn-primary" onclick="" type="submit" style="border:none;outline:none;background-color: white;border:none">
+              <img src="../../assets/images/search-solid.svg" alt="Search" width="20" height="24">
+              </button>
+            </div>
+            <div class="input-group-append">
+              <button class="btn btn-danger" onclick="" type="button" style="border:none;outline:none;background-color:white;border-radius:55px" (click)="clear()">
+              <img src="../../assets/images/times-solid.svg" alt="Clear" width="20" height="24">
+              </button>
+            </div>
+          </div>
+        </form>
+        <div *ngIf="invalidSymbol">
+          <ngb-alert #invalidSymbolAlert type="danger" (closed)="invalidSymbol = false">
+            No data found. Please enter a valid Ticker.
+          </ngb-alert>
+        </div>
+        <ngb-alert #successAlert type="success" *ngIf="successMessage" (closed)="successMessage = ''">{{ successMessage }}</ngb-alert>
+        <ngb-alert #dangerAlert type="danger" *ngIf="dangerMessage" (closed)="dangerMessage = ''">{{ dangerMessage }}</ngb-alert>
+        </div>
+        <div class="container mt-5" *ngIf="loadingData">
+        <div class="spinner-container">
+          <mat-spinner diameter="60"></mat-spinner>
+        </div>
+        </div>
+      
+      
+        <div class="container mt-5" *ngFor="let company of searchResults">
+          <div class="row align-items-center">
+            <div class="left-section">
+              <!-- Content for left section -->
+              <h2 class="symbol">{{ company.symbol }} 
+                <ng-container *ngIf="isInWatchlist(company.symbol); else starDown">
+                  <!-- Filled star -->
+                  <i class="bi bi-star-fill" (click)="removeFromWatchlist(company.symbol); showDangerAlert(company.symbol)"></i>
+                </ng-container>
+                <ng-template #starDown>
+                  <!-- Empty star -->
+                  <i class="bi bi-star" (click)="addToWatchlist(company.symbol, company.name, company.lastPrice, company.change, company.percentChange);showSuccessAlert(company.symbol)"></i>
+                </ng-template>
+              </h2>
+              <h3 class="company-name">{{ company.name }}</h3>
+              <p class="exchange">{{ company.exchange }}</p>
+              <button class="btn btn-success" style="cursor: pointer;"  (click)="openBuyModal(company)">Buy</button>
+              <!-- <div *ngIf=""> -->
+              <button class="btn btn-danger" *ngIf="buyButtonclickedService.buyButtonClicked" style="cursor: pointer; background-color: red; margin-left: 2px;" (click)="openSellModal(company)">Sell</button>
+            <!-- </div> -->
+            </div>
+            <div class="middle-section">
+              <!-- Content for middle section -->
+              <img src="{{ company.logo }}" width="100" alt="Company Logo" style="margin-top: 20px;">
+            </div>
+            <div class="right-section">
+              <!-- Content for right section -->
+              <h2 [class.text-danger]="company.change < 0" [class.text-success]="company.change > 0">
+                {{ company.lastPrice }}
+              </h2>
+              <p [class.text-danger]="company.change < 0" [class.text-success]="company.change > 0">
+                <ng-container *ngIf="company.change >= 0; else downIcon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-up-fill" viewBox="0 0 16 16">
+                    <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+                  </svg>
+                </ng-container>
+                <ng-template #downIcon>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
+                    <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                  </svg>
+                </ng-template>
+                {{ company.change }} ({{ company.percentChange }}%)
+              </p>
+              <p> {{ company.currentTime }} </p>
+            </div>
+            <p [ngClass]="{ 'text-success': company.isMarketOpen, 'text-danger': !company.isMarketOpen }" style="margin-top: 50px;">  {{ company.isMarketOpen ? 'Market is Open' : 'Market Closed on ' + company.dateTime }}</p>
+
+      
+
+        <div class="container mt-5 mb-5">
+          <div class="row align-items-center">
+            <mat-tab-group>
+              <mat-tab label="Summary">
+                <ng-template matTabContent>
+                  <div class="container-fluid">
+                  <div class="row">
+                    <!-- Left Column -->
+                    <div
+                      class="col-lg-6 d-flex flex-column justify-content-between"
+                    >
+                      <div class="summary-details">
+                        <!-- <div class="summarydetails flex-grow-1">
+                          <ul>
+                            <li>High price: {{ responseData.quote.h }}</li>
+                            <li>Low price: {{ responseData.quote.l }}</li>
+                            <li>Open price: {{ responseData.quote.o }}</li>
+                            <li>Prev Close: {{ responseData.quote.pc }}</li>
+                          </ul>
+                        </div> -->
+                        <div
+                          class="summarydetails1 d-none d-sm-block flex-grow-1"
+                        >
+                          <ul style="padding-right: 23rem;">
+                            <li><strong>High price: </strong>{{ company.highPrice }}</li>
+                            <li><strong>Low price: </strong> {{ company.lowPrice }}</li>
+                            <li><strong>Open price: </strong> {{ company.openPrice }} </li>
+                            <li><strong>Prev Close: </strong>{{ company.prevClose }}</li>
+                          </ul>
+                        </div>
+  
+                        <div
+                          class="summarydetails2 d-lg-none d-sm-flex flex-grow-1 justify-content-center align-items-center"
+                        >
+                          <ul style="padding-right: 3rem;">
+                            <li><strong>High price: </strong>{{ company.highPrice }}</li>
+                            <li><strong>Low price: </strong> {{ company.lowPrice }}</li>
+                            <li><strong>Open price: </strong>{{ company.openPrice }}</li>
+                            <li><strong>Prev Close: </strong>{{ company.prevClose }}</li>
+                          </ul>
+                        </div>
+  
+                        <div class="about">
+                          <h4 style="text-decoration: underline; margin-bottom: 20px;">About the company</h4>
+                          <ul class="about1">
+                            <li><strong>IPO Start Date: </strong>{{ company.ipo }}</li>
+                            <li><strong>Industry: </strong>{{ company.industry }}</li>
+                            <li>
+                              <strong>Website: </strong><a href="{{ company.weburl }}" target="_blank">{{ company.webpage }}</a>
+                            </li>
+                            <li><strong>Company Peers:</strong></li>
+                            <div *ngIf="company.peers?.length">
+                              <ng-container *ngFor="let peer of company.peers;let last = last">
+                                <a [routerLink]="['/search', peer]" (click)="searchPeer($event, peer)" routerLinkActive="active">{{ peer }} </a>
+                                <a *ngIf="!last">,</a>
+                              </ng-container>
+                            </div>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+  
+                    <!-- Right Column -->
+                    <div class="col-lg-6">
+                      <div class="summary-highchart">
+                        <!-- <app-hourlychart></app-hourlychart> -->
+                        <highcharts-chart 
+            [Highcharts]="highchartsService.Highcharts"
+            [options]="highchartsService.chartOptions"
+            style="height: fit-content; display: block;"></highcharts-chart>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </ng-template>
+              </mat-tab>
+              <!-- <mat-tab label="Summary">
+                <ng-template matTabContent>
+                <div class="summary-tab-content">
+                  <div class="left">
+                    <div class="top-left">
+                      <p><strong>High Price: </strong>{{company.highPrice}}</p>
+                      <p><strong>Low Price: </strong>{{company.lowPrice}}</p>
+                      <p><strong>Open Price: </strong>{{company.openPrice}}</p>
+                      <p><strong>Prev. Close: </strong>{{company.prevClose}}</p>
+                    </div>
+                    <div class="bottom-left">
+                      <h4 style="text-decoration: underline; margin-bottom: 20px;">About the company</h4>
+                      <p><strong>IPO Start Date: </strong>{{company.ipo}}</p>
+                      <p><strong>Industry: </strong>{{company.industry}}</p>
+                      <p><strong>Webpage: </strong><a href="{{company.weburl}}" target="_blank">{{company.weburl}}</a></p>
+                      <p><strong>Company Peers:</strong></p>
+                      <p>
+                        <ng-container *ngFor="let peer of company.peers; let last = last">
+                          <a [routerLink]="['/search', peer]" (click)="searchPeer($event, peer)" target="_blank">{{peer}}</a>{{ !last ? ', ' : '' }}
+                        </ng-container>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="right">
+                      <highcharts-chart 
+            [Highcharts]="highchartsService.Highcharts"
+            [options]="highchartsService.chartOptions"
+            style="width: 100%; height: auto; display: block;"></highcharts-chart>
+                    </div>
+                  </div>
+                </ng-template>
+                </mat-tab> -->
+
+
+              <mat-tab label="Top News">
+                <ng-template matTabContent>
+                <div *ngFor="let company of searchResults">
+                  <div class="row">
+                      <div class="col-md-6" *ngFor="let newsItem of company?.news">
+                          <div class="card-wrapper">
+                              <div class="card mb-3" style="padding:20px;cursor: pointer;" (click)="openModal(newsItem)">
+                                  <div class="row no-gutters">
+                                      <div class="col-md-4">
+                                          <img [src]="newsItem.image" class="card-img" alt="News Image" style="height: 150px;">
+                                      </div>
+                                      <div class="col-md-8">
+                                          <div class="card-body">
+                                              <h5 class="card-title">{{ newsItem.headline }}</h5>
+                                              <!-- Add more content here if needed -->
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+            </ng-template>
+              </mat-tab>
+              <mat-tab label="Charts">
+                <ng-template matTabContent>
+                <highcharts-chart 
+                [Highcharts]="charttabService.Highcharts"
+          [options]="charttabService.SMAandVolumeChartOptions"
+          style="width: 100%; height: 500px; display: block;"
+          ></highcharts-chart>
+        </ng-template>
+              </mat-tab>
+              <mat-tab label="Insights">
+                <ng-template matTabContent>
+                <div class="container" *ngFor="let company of searchResults">
+                  <h2 class="text-center">Insider Sentiments</h2>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>{{company.name}}</th>
+                        <th>MSPR</th>
+                        <th>Change</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Total</td>
+                        <td>{{ company.allMSPR % 1 == 0 ? company.allMSPR.toFixed(0) : company.allMSPR.toFixed(2) }}</td>
+                        <td>{{ company.allChange % 1 == 0 ? company.allChange.toFixed(0) : company.allChange.toFixed(2) }}</td>
+                      </tr>
+                      <tr>
+                        <td>Positive</td>
+                        <td>{{ company.positiveMSPR % 1 == 0 ? company.positiveMSPR.toFixed(0) : company.positiveMSPR.toFixed(2) }}</td>
+                        <td>{{ company.positiveChange % 1 == 0 ? company.positiveChange.toFixed(0) : company.positiveChange.toFixed(2)}}</td>
+                      </tr>
+                      <tr>
+                        <td>Negative</td>
+                        <td>{{ company.negativeMSPR % 1 == 0 ? company.negativeMSPR.toFixed(0) : company.negativeMSPR.toFixed(2)}}</td>
+                        <td>{{ company.negativeChange % 1 == 0 ? company.negativeChange.toFixed(0) : company.negativeChange.toFixed(2)}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <!-- <div  class="row">
+                    <div class="col-sm">
+                      <app-recommendation-charts></app-recommendation-charts>
+                    </div>
+                    <div class="col-sm">
+                      <app-earnings-chart></app-earnings-chart>
+                    </div>
+                  </div> -->
+                  <div class="d-flex flex-column flex-md-row gap-2 justify-content-center">
+                    <div class="col-md-6 ms-md-4 me-md-2">
+                        <app-recommendation-charts></app-recommendation-charts>
+                    </div>
+                    <div class="col-md-6 me-md-4 ms-md-2">
+                        <app-earnings-chart></app-earnings-chart>
+                    </div>
+                    </div>
+                </div>
+              </ng-template>
+              </mat-tab>
+            </mat-tab-group>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+ 
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,19 @@
+.modal-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.share-buttons-container {
+    border: 1px solid #ccc; /* Add border */
+    padding: 10px; /* Add padding for spacing */
+    margin-bottom: 15px; /* Add margin at the bottom for separation */
+}
+
+.close {
+    background-color: transparent;
+    border: none;
+    font-size: 1rem;
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}

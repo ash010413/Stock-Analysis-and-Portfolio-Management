@@ -1,0 +1,17 @@
+.close {
+    background-color: transparent;
+    border: none;
+    font-size: 1rem;
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.quantity-input-container {
+    display: flex; /* Use flexbox for layout */
+    align-items: center; /* Align items vertically in the center */
+}
+
+.quantity-input-container label {
+    margin-right: 10px; /* Add some spacing between the label and the input */
+}

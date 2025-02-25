@@ -1,0 +1,48 @@
+<div class="container mt-5">
+    <ngb-alert 
+    #selfClosingAlert...
+    [type]="alertType"
+    *ngIf="statusMessage"
+    (closed)="statusMessage = ''"
+    class="alert-message">
+    {{ statusMessage }}
+    </ngb-alert>   
+    <h1 class="mb-4"><strong>My Portfolio</strong></h1>
+    <mat-spinner *ngIf="loadingPortfolio" diameter="60"></mat-spinner>
+    <h2 class="mb-3">Money in Wallet: {{ moneyInWallet | currency }}</h2>
+    <ng-container *ngIf="!loadingPortfolio">
+        <ng-container *ngIf="portfolioData.length > 0; else emptyPortfolio">
+            <div *ngFor="let stock of portfolioData" class="card mb-3">
+                <div class="card-header d-flex align-items-center" (click)="openSearchDetails(stock.symbol)" style="cursor:pointer;">
+                    <span class="symbol me-2">{{ stock.symbol }}</span> 
+                    <span class="company">{{ stock.companyName }}</span>
+                                    
+                </div>
+                <div class="card-body pb-0"> 
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <p><span class="label fs-6">Quantity:</span> <span class="value fs-6">{{ stock.quantity | number:'1.2-2' }}</span></p>
+                            <p><span class="label fs-6">Avg. Cost / Share:</span> <span class="value fs-6">{{ stock.total / stock.quantity | number:'1.2-2' }}</span></p>
+                            <p><span class="label fs-6">Total Cost:</span> <span class="value fs-6">{{ stock.total | number:'1.2-2' }}</span></p>                           
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <p><span class="label fs-6">Change:</span> <span class="value fs-6" [ngStyle]="{ color: stock.currentPrice - (stock.total/stock.quantity) > 0 ? 'green' : (stock.currentPrice - (stock.total/stock.quantity) ? 'red' : 'black') }"> <i class="{{ stock.currentPrice - (stock.total/stock.quantity) > 0 ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill' }}"></i>{{ stock.currentPrice - (stock.total/stock.quantity) | number:'1.2-2' }}</span></p>
+                            <p><span class="label fs-6">Current Price:</span> <span class="value fs-6" [ngStyle]="{ color: stock.currentPrice - (stock.total/stock.quantity) > 0 ? 'green' : (stock.currentPrice - (stock.total/stock.quantity) ? 'red' : 'black') }">{{ stock.currentPrice | number:'1.2-2' }}</span></p>
+                            <p><span class="label fs-6">Market Value:</span> <span class="value fs-6" [ngStyle]="{ color: stock.currentPrice - (stock.total/stock.quantity) ? 'green' : (stock.currentPrice - (stock.total/stock.quantity) ? 'red' : 'black') }">{{ stock.currentPrice * stock.quantity | number:'1.2-2' }}</span></p>                                                
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex">
+                    <button class="btn btn-primary me-2" (click)="portfolioBuyModal(stock.symbol, stock.currentPrice)">Buy</button>
+                    <button class="btn btn-danger" (click)="openSellModal(stock.symbol, stock.currentPrice, stock.quantity)">Sell</button>                    
+                </div>
+            </div>
+        </ng-container>
+    </ng-container>
+    <ng-template #emptyPortfolio>
+        <ngb-alert [dismissible]="false" class="text-center" style="border: none;">
+            Currently you don't have any stock.
+        </ngb-alert>
+    </ng-template>
+  </div>
+  

@@ -1,0 +1,33 @@
+<div class="watchlist-container mt-5">
+    <h1><strong>My Watchlist</strong></h1>
+    <mat-spinner *ngIf="loadingWatchlist" diameter="60"></mat-spinner>
+    <ng-container *ngIf="!loadingWatchlist">
+        <ng-container *ngIf="watchlistData.length > 0; else emptyWatchlist">
+            <div *ngFor="let item of watchlistData" class="watchlist-item p-3"(click)="onCardClick(item.symbol)" style="cursor:pointer;">
+                <div class="col-md-6 mb-3">
+                    <button type="button" class="close-btn" aria-label="Close" (click)="onCloseButtonClick($event, item.symbol)">
+                        <span aria-hidden="true">&times;</span>                    
+                    </button>
+                    <div class="left-content">
+                        <div class="symbol">{{ item.symbol }}</div>
+                        <div class="company">{{ item.companyName }}</div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="right-content">
+                        <div class="{{ item.change >= 0 ? 'text-success current-price' : 'text-danger current-price' }}">{{ item.lastPrice }}</div>
+                        <div class="{{ item.change >= 0 ? 'text-success price-change' : 'text-danger price-change' }}">
+                            <i class="{{ item.change >= 0 ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill' }}"></i>
+                            {{ item.change }} ({{ item.percentChange }}%)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </ng-container>
+</div>
+<ng-template #emptyWatchlist>
+    <ngb-alert [dismissible]="false" class="text-center" style="border: none;">
+        Currently you don't have any stock in your watchlist.
+    </ngb-alert>
+</ng-template>

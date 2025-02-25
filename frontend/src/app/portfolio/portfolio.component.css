@@ -1,0 +1,31 @@
+.portfolio-container {
+    margin-left: 20%;
+    margin-right: 20%;
+    margin-top: 20%;
+}  
+
+.portfolio-item {
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+  }
+
+.symbol {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.company {
+    font-size: 16px;
+}
+
+.label {
+    display: inline-block;
+    width: 150px;
+}
+
+.alert-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -1,0 +1,25 @@
+<div class="modal-header">
+    <div>
+    <h2 class="modal-title">{{ source }}</h2>
+    <p>{{ publishedDate | date: 'MMMM dd, yyyy' }}</p>
+    </div>
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <h2>{{ headline }}</h2>
+    <p>{{ summary }}</p>
+    <p>For more details, click <a href="{{ url }}" target="_blank">here</a></p>
+    <div class="share-buttons-container">
+    <p style="color: grey">Share</p>
+    <button type="button" class="btn" (click)="shareOnTwitter()">
+        <!-- <i class="fa-brands fa-x-twitter"></i> -->
+        <img src="../../assets/images/X.png" alt="Twitter" style="height: 40px; width: 40px;">
+    </button>
+    <button type="button" class="btn" (click)="shareOnFacebook()" style="outline: none;">
+        <!-- <i class="fab fa-facebook"></i> -->
+        <img src="../../assets/images/facebook.png" alt="Facebook" style="height: 40px; width: 40px;">
+    </button>
+</div>
+</div>
