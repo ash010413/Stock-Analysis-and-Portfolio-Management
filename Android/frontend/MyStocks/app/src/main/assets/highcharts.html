@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recommendation Trends</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+</head>
+<body>
+    <div id="container" style="width:100%; height:400px;"></div>
+    <script>
+        // recoData is assumed to be a JavaScript object containing recommendation data received from Android
+        var recoData = {
+            period: ['Jan', 'Feb', 'Mar', 'Apr', 'May'], // Example periods
+            strongBuy: [5, 3, 4, 7, 2], // Example strong buy data
+            buy: [2, 4, 1, 3, 5], // Example buy data
+            hold: [3, 2, 5, 1, 4], // Example hold data
+            sell: [4, 1, 3, 2, 6], // Example sell data
+            strongSell: [1, 5, 2, 4, 3] // Example strong sell data
+        };
+
+        // Render the Highcharts chart
+        Highcharts.chart('container', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Recommendation Trends'
+            },
+            xAxis: {
+                categories: recoData.period,
+                title: {
+                    text: 'Period'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: '#Analysis'
+                }
+            },
+            legend: {
+                align: 'right',
+                verticalAlign: 'top',
+                layout: 'vertical',
+                x: 0,
+                y: 100
+            },
+            series: [{
+                name: 'Strong Buy',
+                data: recoData.strongBuy
+            }, {
+                name: 'Buy',
+                data: recoData.buy
+            }, {
+                name: 'Hold',
+                data: recoData.hold
+            }, {
+                name: 'Sell',
+                data: recoData.sell
+            }, {
+                name: 'Strong Sell',
+                data: recoData.strongSell
+            }]
+        });
+    </script>
+</body>
+</html>
