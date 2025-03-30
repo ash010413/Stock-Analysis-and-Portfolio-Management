@@ -7,8 +7,8 @@ const { MongoClient } = require('mongodb');
 
 app.use(express.json());
 
-const FINNHUB_API_KEY = 'cncn0hpr01qkavtmoiv0cncn0hpr01qkavtmoivg';
-const POLYGON_API_KEY = '7po3YX1zXfgmIrKPijsWSeJpQzywBk8l';
+const FINNHUB_API_KEY = '';
+const POLYGON_API_KEY = '';
 
 // Enable CORS middleware
 app.use(cors());
